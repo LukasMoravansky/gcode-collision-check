@@ -75,9 +75,8 @@ gcode-collision-check verify program.nc --scene vise.stl \
   --tool-kind flat
 ```
 
-`--tool-kind` is `flat`, `ball`, or `bull` (the bull-nose corner radius
-isn't yet exposed as a flag — use `--tool-preset 12mm_bull` or the Python
-API's `ToolConfig(corner_radius=...)` for that).
+`--tool-kind` is `flat`, `ball`, or `bull` (`bull` requires
+`--tool-corner-radius` > 0).
 
 Or use a built-in preset, which overrides the individual `--tool-*` flags:
 

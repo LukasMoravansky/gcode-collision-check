@@ -39,6 +39,11 @@ def _ball_flute(config: ToolConfig) -> trimesh.Trimesh:
 def _bull_flute(config: ToolConfig) -> trimesh.Trimesh:
     radius = config.diameter / 2
     corner = config.corner_radius
+    if corner <= 0:
+        raise ValueError(
+            "bull-nose tool requires corner_radius > 0 (got "
+            f"{corner!r}); use kind='flat' for a square end instead"
+        )
     corner_torus = trimesh.creation.torus(
         major_radius=radius - corner, minor_radius=corner
     )

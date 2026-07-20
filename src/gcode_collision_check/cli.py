@@ -24,6 +24,7 @@ def main():
 @click.option("--tool-holder-diameter", default=46.0, type=float)
 @click.option("--tool-holder-length", default=50.0, type=float)
 @click.option("--tool-kind", default="flat", type=click.Choice(["flat", "ball", "bull"]))
+@click.option("--tool-corner-radius", default=0.0, type=float, help="Bull-nose corner radius, mm (only used with --tool-kind bull)")
 @click.option("--tool-preset", default=None, help="Named preset: 6mm_ball, 10mm_flat...")
 @click.option("--wcs-offset", default="0,0,0", help="G54 offset X,Y,Z in mm")
 @click.option("--output", default=None, help="JSON report output path")
@@ -38,6 +39,7 @@ def verify(
     tool_holder_diameter,
     tool_holder_length,
     tool_kind,
+    tool_corner_radius,
     tool_preset,
     wcs_offset,
     output,
@@ -55,6 +57,7 @@ def verify(
             holder_diameter=tool_holder_diameter,
             holder_length=tool_holder_length,
             kind=tool_kind,
+            corner_radius=tool_corner_radius,
         )
 
     scene_stls = {Path(p).stem: p for p in scene}
