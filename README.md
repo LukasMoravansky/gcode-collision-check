@@ -112,6 +112,15 @@ G-code text
   → VerifyResult (safe / CollisionEvent[] with line, position, depth)
 ```
 
+## Background
+
+Built with AI-assisted coding (Claude Code) based on original research into
+CNC collision detection across Python, C++, C#, NVIDIA Omniverse, and Unity
+stacks. The architecture, library selection, and validation were done
+against real machining programs at JIC Smart Factory. See
+[docs/research/](docs/research/) for the full collision library landscape
+analysis.
+
 ## License
 
 MIT
