@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gcode-collision-check"
+version = "0.1.0"
+description = "Offline collision detection for CNC tool assemblies against a static scene, based on G-code."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "trimesh[easy]",
+    "python-fcl",
+    "numpy",
+    "click",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[project.scripts]
+gcode-collision-check = "gcode_collision_check.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gcode_collision_check"]
