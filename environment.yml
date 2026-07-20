@@ -1,0 +1,13 @@
+name: gcode-collision-check
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - scipy
+  - click
+  - pytest
+  - trimesh
+  - pip
+  - pip:
+      - python-fcl
