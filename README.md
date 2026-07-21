@@ -40,13 +40,25 @@ only looks at the cutter tip misses exactly those.
 
 ```
 gcode-collision-check verify crash.nc --scene vise.stl
-✗ COLLISION — 33 collision(s) found:
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-36.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 1.000 mm
-  ...
+RESULT: COLLISION   33 hits on 3 of 7 program lines
+        checked 7 segments, 134 samples, 0.07 s
+
+  LINE  G-CODE                            COLLIDING PAIR              HITS  DEPTH mm  Z
+  ----  --------------------------------  --------------------------  ----  --------  -------------
+  6     G0 X-50          (rapid into ...  flute / vise                8     40.087    5.00
+  7     G1 Z-10 F200                      flute / vise, shank / vise  9     9.798     -10.00..5.00
+  8     G0 Z50                            flute / vise, shank / vise  16    10.535    -10.00..20.00
+
+        first contact: line 6  X-36.00 Y0.00 Z5.00
 ```
+
+One G-code move is sampled into many positions, so a single line can produce
+many collision samples. The report groups them by program line: `HITS` is how
+many sampled positions collided on that line, `DEPTH mm` is the deepest
+penetration found there (`contact` means a zero-depth touch, not a real dig-in),
+and `Z` is the height — a single value, or a `lo..hi` range when it varies
+across the line. The full per-sample list is preserved in the JSON report
+(`--output report.json`).
 
 
 

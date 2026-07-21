@@ -5,150 +5,27 @@ pip install -e .
 gcode-collision-check verify examples/crash.nc --scene examples/vise.stl
 ```
 
-Actual output (33 colliding samples -- the tool crashes sideways into the
-jaw on the line-6 rapid, then keeps dragging through it on the retract
-since X never moves back out of the jaw):
-
-<details>
-<summary>Full output</summary>
+Actual output (33 colliding samples grouped by program line -- the tool
+crashes sideways into the jaw on the line-6 rapid, then keeps dragging
+through it on the retract since X never moves back out of the jaw):
 
 ```
-✗ COLLISION — 33 collision(s) found:
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-36.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 1.000 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-38.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 15.036 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-40.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 15.000 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-42.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 15.042 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-44.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 40.087 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-46.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 6.466 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-48.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 5.488 mm
-  Line 6: G0 X-50          (rapid into the vise jaw = CRASH)
-    Position: X=-50.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 7.444 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=5.00
-    Pair: flute ↔ vise
-    Depth: 7.444 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=3.12
-    Pair: flute ↔ vise
-    Depth: 9.798 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=1.25
-    Pair: flute ↔ vise
-    Depth: 6.250 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-0.62
-    Pair: flute ↔ vise
-    Depth: 4.375 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-2.50
-    Pair: flute ↔ vise
-    Depth: 2.902 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-4.38
-    Pair: flute ↔ vise
-    Depth: 0.625 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-6.25
-    Pair: flute ↔ vise
-    Depth: 1.250 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-8.12
-    Pair: flute ↔ vise
-    Depth: 3.455 mm
-  Line 7: G1 Z-10 F200
-    Position: X=-50.00 Y=0.00 Z=-10.00
-    Pair: flute ↔ vise
-    Depth: 5.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=-10.00
-    Pair: flute ↔ vise
-    Depth: 5.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=-8.00
-    Pair: flute ↔ vise
-    Depth: 3.342 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=-6.00
-    Pair: flute ↔ vise
-    Depth: 1.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=-4.00
-    Pair: flute ↔ vise
-    Depth: 1.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=-2.00
-    Pair: flute ↔ vise
-    Depth: 3.342 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=0.00
-    Pair: flute ↔ vise
-    Depth: 5.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=2.00
-    Pair: flute ↔ vise
-    Depth: 7.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=4.00
-    Pair: flute ↔ vise
-    Depth: 10.535 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=6.00
-    Pair: flute ↔ vise
-    Depth: 7.444 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=8.00
-    Pair: flute ↔ vise
-    Depth: 7.449 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=10.00
-    Pair: flute ↔ vise
-    Depth: 7.752 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=12.00
-    Pair: flute ↔ vise
-    Depth: 8.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=14.00
-    Pair: flute ↔ vise
-    Depth: 6.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=16.00
-    Pair: flute ↔ vise
-    Depth: 4.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=18.00
-    Pair: flute ↔ vise
-    Depth: 2.000 mm
-  Line 8: G0 Z50
-    Position: X=-50.00 Y=0.00 Z=20.00
-    Pair: flute ↔ vise
-    Depth: 0.000 mm
+RESULT: COLLISION   33 hits on 3 of 7 program lines
+        checked 7 segments, 134 samples, 0.07 s
+
+  LINE  G-CODE                            COLLIDING PAIR              HITS  DEPTH mm  Z
+  ----  --------------------------------  --------------------------  ----  --------  -------------
+  6     G0 X-50          (rapid into ...  flute / vise                8     40.087    5.00
+  7     G1 Z-10 F200                      flute / vise, shank / vise  9     9.798     -10.00..5.00
+  8     G0 Z50                            flute / vise, shank / vise  16    10.535    -10.00..20.00
+
+        first contact: line 6  X-36.00 Y0.00 Z5.00
 ```
 
-</details>
+Each row is one program line. `HITS` is how many sampled positions along that
+line collided, `DEPTH mm` is the deepest penetration on the line (`contact`
+means a zero-depth touch), and `Z` is a single height or a `lo..hi` range.
+The full per-sample breakdown is available with `--output report.json`.
 
 Exit code: `1`.
 
@@ -162,15 +39,11 @@ gcode-collision-check verify examples/safe.nc --scene examples/vise.stl
 Actual output:
 
 ```
-✓ SAFE — no collisions detected
+RESULT: SAFE   no collisions detected
+        checked 5 segments, 92 samples, 0.02 s
 ```
 
 Exit code: `0`.
-
-> On Windows consoles with a non-UTF-8 code page (e.g. `cp1250`), the ✓/✗/↔
-> characters above may raise a `UnicodeEncodeError`. Work around it with
-> `set PYTHONIOENCODING=utf-8` (cmd) or `$env:PYTHONIOENCODING="utf-8"`
-> (PowerShell) before running the command.
 
 ## Other CLI options
 
