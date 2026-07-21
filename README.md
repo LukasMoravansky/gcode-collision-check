@@ -8,6 +8,17 @@ No open-source tool does this. CAMotics and FreeCAD Path simulate material
 removal but don't check if your holder will crash into the vise jaw.
 This one does.
 
+<table>
+<tr>
+<td width="50%"><img src="docs/images/no_collision_1.png" alt="Safe toolpath: green tool assembly clears the vise"></td>
+<td width="50%"><img src="docs/images/collision_1.png" alt="Collision: red tool assembly interfering with the vise"></td>
+</tr>
+<tr>
+<td align="center"><b>safe</b> — the whole assembly clears the vise and stock</td>
+<td align="center"><b>collision</b> — flagged with G-code line, XYZ, and penetration depth</td>
+</tr>
+</table>
+
 ## Quick start
 
 ```
@@ -145,6 +156,13 @@ Runs the same check as `verify`, then opens an interactive 3D view in your
 browser: the scene, the tool assembly placed at the first collision (or at
 the end of the toolpath if it's safe), and the full toolpath traced in
 yellow. The tool is colored red on collision, green when safe.
+
+<p align="center">
+  <img src="docs/images/collision_2.png" alt="Close-up of the tool assembly interfering with the vise jaw, toolpath traced in yellow" width="80%">
+</p>
+
+Above: a close-up of the interactive view at the collision point — the tool
+body up against the vise, with the drilling toolpath traced in yellow.
 
 It takes the same `--tool-*`/`--tool-preset`/`--wcs-offset`/`--origin`/
 `--origin-rotation` options as `verify`, plus:

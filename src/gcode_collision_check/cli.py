@@ -72,17 +72,94 @@ def _resolve_origin(origin, wcs_offset):
 
 
 def _print_summary(result):
+    stats = (
+        f"{result.total_segments} segments, {result.total_samples} samples, "
+        f"{result.elapsed_seconds:.2f} s"
+    )
+
     if result.safe:
-        click.echo("✓ SAFE — no collisions detected")
-    else:
-        click.echo(f"✗ COLLISION — {len(result.events)} collision(s) found:")
-        for e in result.events:
-            click.echo(f"  Line {e.line_no}: {e.gcode_text.strip()}")
-            click.echo(
-                f"    Position: X={e.position[0]:.2f} Y={e.position[1]:.2f} Z={e.position[2]:.2f}"
-            )
-            click.echo(f"    Pair: {e.pairs[0][0]} ↔ {e.pairs[0][1]}")
-            click.echo(f"    Depth: {e.penetration_depth:.3f} mm")
+        click.echo("RESULT: SAFE   no collisions detected")
+        click.echo(f"        checked {stats}")
+        return
+
+    # Each collision sample is a separate event, so one G-code move produces many
+    # near-identical events. Group them by line so the report stays readable:
+    # one row per line, aggregating pairs, hit count, depth range, and Z.
+    groups: dict[int, dict] = {}
+    order: list[int] = []
+    for e in result.events:
+        g = groups.get(e.line_no)
+        if g is None:
+            g = {
+                "gcode": e.gcode_text.strip(),
+                "pairs": set(),
+                "hits": 0,
+                "depth_max": 0.0,
+                "z_values": [],
+            }
+            groups[e.line_no] = g
+            order.append(e.line_no)
+        g["hits"] += 1
+        g["depth_max"] = max(g["depth_max"], e.penetration_depth)
+        g["z_values"].append(e.position[2])
+        for a, b in e.pairs:
+            g["pairs"].add(f"{a} / {b}")
+
+    rows = []
+    for line_no in order:
+        g = groups[line_no]
+        z_vals = g["z_values"]
+        z_lo, z_hi = min(z_vals), max(z_vals)
+        z_txt = f"{z_lo:.2f}" if abs(z_hi - z_lo) < 5e-3 else f"{z_lo:.2f}..{z_hi:.2f}"
+        depth_txt = "contact" if g["depth_max"] < 5e-4 else f"{g['depth_max']:.3f}"
+        rows.append(
+            {
+                "line": str(line_no),
+                "gcode": g["gcode"],
+                "pair": ", ".join(sorted(g["pairs"])),
+                "hits": str(g["hits"]),
+                "depth": depth_txt,
+                "z": z_txt,
+            }
+        )
+
+    n_lines = len(rows)
+    click.echo(
+        f"RESULT: COLLISION   {len(result.events)} hits on "
+        f"{n_lines} of {result.total_segments} program lines"
+    )
+    click.echo(f"        checked {stats}")
+    click.echo("")
+
+    headers = {
+        "line": "LINE",
+        "gcode": "G-CODE",
+        "pair": "COLLIDING PAIR",
+        "hits": "HITS",
+        "depth": "DEPTH mm",
+        "z": "Z",
+    }
+    cols = ["line", "gcode", "pair", "hits", "depth", "z"]
+    # Cap the G-code column so a long move line can't wreck the layout.
+    for r in rows:
+        if len(r["gcode"]) > 32:
+            r["gcode"] = r["gcode"][:29] + "..."
+    widths = {c: max(len(headers[c]), *(len(r[c]) for r in rows)) for c in cols}
+
+    def _fmt(cells):
+        return "  " + "  ".join(cells[c].ljust(widths[c]) for c in cols).rstrip()
+
+    click.echo(_fmt(headers))
+    click.echo("  " + "  ".join("-" * widths[c] for c in cols))
+    for r in rows:
+        click.echo(_fmt(r))
+
+    first = result.events[0]
+    click.echo("")
+    click.echo(
+        f"        first contact: line {first.line_no}  "
+        f"X{first.position[0]:.2f} Y{first.position[1]:.2f} Z{first.position[2]:.2f}"
+    )
 
 
 @click.group()
