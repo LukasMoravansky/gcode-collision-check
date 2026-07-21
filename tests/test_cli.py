@@ -55,7 +55,7 @@ def test_verify_collision_exits_nonzero_and_prints_summary(crash_program, vise_s
 
     assert result.exit_code == 1
     assert "COLLISION" in result.output
-    assert "Line" in result.output
+    assert "LINE" in result.output
     assert "flute" in result.output
 
 

@@ -22,8 +22,6 @@ This one does.
 ## Quick start
 
 ```
-pip install gcode-collision-check
-
 gcode-collision-check verify program.nc --scene vise.stl
 ```
 
