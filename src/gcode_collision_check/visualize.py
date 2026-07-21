@@ -85,7 +85,6 @@ def export_html(scene: trimesh.Scene, output_dir: Path) -> tuple[Path, Path]:
   <model-viewer
     src="{glb_data_uri}"
     camera-controls
-    auto-rotate
     shadow-intensity="0.5"
     environment-image="neutral"
     camera-orbit="45deg 55deg auto"

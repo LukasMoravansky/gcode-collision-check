@@ -36,6 +36,41 @@ def _build_tool_config(
     )
 
 
+def _parse_triple(value, option_name, labels="X,Y,Z"):
+    parts = value.split(",")
+    if len(parts) != 3:
+        raise click.BadParameter(f"expected {labels} (got '{value}')", param_hint=option_name)
+    try:
+        return tuple(float(p) for p in parts)
+    except ValueError:
+        raise click.BadParameter(f"expected three numbers {labels} (got '{value}')", param_hint=option_name)
+
+
+def _parse_xyz(value, option_name):
+    return _parse_triple(value, option_name, labels="X,Y,Z")
+
+
+def _parse_abc(value, option_name):
+    """Parse an A,B,C rotation in degrees (CSN ISO 841: A/B/C around X/Y/Z)."""
+    return _parse_triple(value, option_name, labels="A,B,C")
+
+
+def _resolve_origin(origin, wcs_offset):
+    """Parse --origin/--wcs-offset into (wcs_offsets, program_origin) for the checker.
+
+    The two are mutually exclusive: --origin applies one machine-frame datum to
+    every sample regardless of active WCS, overriding per-WCS offsets entirely.
+    """
+    if origin is not None and wcs_offset is not None:
+        raise click.BadParameter(
+            "--origin and --wcs-offset are mutually exclusive; use one or the other."
+        )
+    if origin is not None:
+        return None, _parse_xyz(origin, "--origin")
+    offset = _parse_xyz(wcs_offset if wcs_offset is not None else "0,0,0", "--wcs-offset")
+    return {"G54": offset}, None
+
+
 def _print_summary(result):
     if result.safe:
         click.echo("✓ SAFE — no collisions detected")
@@ -67,7 +102,20 @@ def main():
 @click.option("--tool-kind", default="flat", type=click.Choice(["flat", "ball", "bull"]))
 @click.option("--tool-corner-radius", default=0.0, type=float, help="Bull-nose corner radius, mm (only used with --tool-kind bull)")
 @click.option("--tool-preset", default=None, help="Named preset: 6mm_ball, 10mm_flat...")
-@click.option("--wcs-offset", default="0,0,0", help="G54 offset X,Y,Z in mm")
+@click.option("--wcs-offset", default=None, help="G54 offset X,Y,Z in mm (default 0,0,0)")
+@click.option(
+    "--origin",
+    default=None,
+    help="Program zero / part datum X,Y,Z in mm — applies globally, overrides per-WCS offsets",
+)
+@click.option(
+    "--origin-rotation",
+    default=None,
+    help=(
+        "Rotate the whole program A,B,C in degrees around the program origin "
+        "(CSN ISO 841: A/B/C around X/Y/Z, right-hand rule)"
+    ),
+)
 @click.option("--output", default=None, help="JSON report output path")
 @click.option("--quiet", is_flag=True)
 def verify(
@@ -83,6 +131,8 @@ def verify(
     tool_corner_radius,
     tool_preset,
     wcs_offset,
+    origin,
+    origin_rotation,
     output,
     quiet,
 ):
@@ -100,10 +150,17 @@ def verify(
     )
 
     scene_stls = {Path(p).stem: p for p in scene}
-    offset_x, offset_y, offset_z = (float(v) for v in wcs_offset.split(","))
-    wcs_offsets = {"G54": (offset_x, offset_y, offset_z)}
+    wcs_offsets, program_origin = _resolve_origin(origin, wcs_offset)
+    program_rotation = _parse_abc(origin_rotation, "--origin-rotation") if origin_rotation is not None else None
 
-    result = checker.verify(gcode_path, scene_stls, tool_config, wcs_offsets=wcs_offsets)
+    result = checker.verify(
+        gcode_path,
+        scene_stls,
+        tool_config,
+        wcs_offsets=wcs_offsets,
+        program_origin=program_origin,
+        program_rotation=program_rotation,
+    )
 
     if output is not None:
         Path(output).write_text(json.dumps(result.to_dict(), indent=2))
@@ -126,7 +183,20 @@ def verify(
 @click.option("--tool-kind", default="flat", type=click.Choice(["flat", "ball", "bull"]))
 @click.option("--tool-corner-radius", default=0.0, type=float, help="Bull-nose corner radius, mm (only used with --tool-kind bull)")
 @click.option("--tool-preset", default=None, help="Named preset: 6mm_ball, 10mm_flat...")
-@click.option("--wcs-offset", default="0,0,0", help="G54 offset X,Y,Z in mm")
+@click.option("--wcs-offset", default=None, help="G54 offset X,Y,Z in mm (default 0,0,0)")
+@click.option(
+    "--origin",
+    default=None,
+    help="Program zero / part datum X,Y,Z in mm — applies globally, overrides per-WCS offsets",
+)
+@click.option(
+    "--origin-rotation",
+    default=None,
+    help=(
+        "Rotate the whole program A,B,C in degrees around the program origin "
+        "(CSN ISO 841: A/B/C around X/Y/Z, right-hand rule)"
+    ),
+)
 @click.option("--output-dir", default=None, type=click.Path(file_okay=False), help="Directory to save GLB/HTML into (default: temp dir)")
 @click.option("--no-open", is_flag=True, help="Generate the files but do not open a browser")
 def visualize_cmd(
@@ -142,6 +212,8 @@ def visualize_cmd(
     tool_corner_radius,
     tool_preset,
     wcs_offset,
+    origin,
+    origin_rotation,
     output_dir,
     no_open,
 ):
@@ -159,11 +231,16 @@ def visualize_cmd(
     )
 
     scene_stls = {Path(p).stem: p for p in scene}
-    offset_x, offset_y, offset_z = (float(v) for v in wcs_offset.split(","))
-    wcs_offsets = {"G54": (offset_x, offset_y, offset_z)}
+    wcs_offsets, program_origin = _resolve_origin(origin, wcs_offset)
+    program_rotation = _parse_abc(origin_rotation, "--origin-rotation") if origin_rotation is not None else None
 
     result, scene_meshes, tool_parts, toolpath_points = checker.verify_with_scene(
-        gcode_path, scene_stls, tool_config, wcs_offsets=wcs_offsets
+        gcode_path,
+        scene_stls,
+        tool_config,
+        wcs_offsets=wcs_offsets,
+        program_origin=program_origin,
+        program_rotation=program_rotation,
     )
 
     if not result.safe:

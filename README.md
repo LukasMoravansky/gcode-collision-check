@@ -39,6 +39,8 @@ gcode-collision-check verify crash.nc --scene vise.stl
   ...
 ```
 
+
+
 ## Supported G-code
 
 Fanuc-style dialect (covers Fanuc, Haas, Mazak, and most generic
@@ -53,7 +55,7 @@ postprocessors):
 - `G43 Hn` / `G49` — tool length compensation
 - `G54`–`G59` — work coordinate systems
 - `G73`, `G80`–`G89` — canned cycles (expanded into rapid/feed moves;
-  retract always targets the R-plane, G98/G99 not distinguished)
+retract always targets the R-plane, G98/G99 not distinguished)
 - `G90`/`G91` — absolute / incremental
 - `M3`/`M4`/`M5` — spindle (parsed, ignored)
 - `M6 Tn` — tool change
@@ -91,6 +93,48 @@ Other options: `--wcs-offset X,Y,Z` (G54 offset from machine home),
 `--output report.json` (write the full result as JSON), `--quiet`
 (suppress the stdout summary).
 
+### Program origin (part zero / datum)
+
+`--origin X,Y,Z` sets a single machine-frame point that the program's
+`(0, 0, 0)` maps to, applied to every move regardless of which WCS (`G54`–
+`G59`) is active in the G-code:
+
+```
+gcode-collision-check verify program.nc --scene vise.stl --origin 150,75,0
+```
+
+This replaces the per-WCS offset logic entirely for the whole program — it's
+for the common case where the part datum is known once (e.g. from a probing
+cycle) and every WCS in the file should be measured from it. `--origin` and
+`--wcs-offset` are mutually exclusive; passing both is an error. If neither
+is given, behavior is unchanged: each WCS defaults to `(0, 0, 0)` unless
+overridden with `--wcs-offset`.
+
+### Program rotation (part turned in the vise)
+
+`--origin-rotation A,B,C` rotates the whole program, in degrees, around its
+own origin — the datum set by `--origin`, or the active WCS offset if
+`--origin` isn't given. It follows CSN ISO 841: `A`/`B`/`C` rotate around
+`X`/`Y`/`Z`, positive is the right-hand rule around the positive half-axis
+(e.g. `C=90` sends the program's `+X` to machine `+Y`). Angles compose
+extrinsically in the machine frame, X first, then Y, then Z
+(`R = Rz(C) @ Ry(B) @ Rx(A)`).
+
+```
+gcode-collision-check verify program.nc --scene vise.stl --origin-rotation 0,0,30
+```
+
+Use it for a part that's clamped at an angle in the vise. It's independent of
+`--origin`/`--wcs-offset` and can be combined with either — the rotation is
+applied around whichever datum is in effect:
+
+```
+gcode-collision-check verify program.nc --scene vise.stl \
+  --origin 150,75,0 --origin-rotation 0,0,30
+```
+
+If `--origin-rotation` isn't given, behavior is unchanged (no rotation).
+
 ## Visualizing a result
 
 ```
@@ -102,11 +146,11 @@ browser: the scene, the tool assembly placed at the first collision (or at
 the end of the toolpath if it's safe), and the full toolpath traced in
 yellow. The tool is colored red on collision, green when safe.
 
-It takes the same `--tool-*`/`--tool-preset`/`--wcs-offset` options as
-`verify`, plus:
+It takes the same `--tool-*`/`--tool-preset`/`--wcs-offset`/`--origin`/
+`--origin-rotation` options as `verify`, plus:
 
 - `--output-dir PATH` — save the GLB/HTML into `PATH` instead of a temp
-  directory (useful if you want to keep or share the files)
+directory (useful if you want to keep or share the files)
 - `--no-open` — generate the files without launching a browser
 
 The view is a self-contained `scene.glb` + `scene.html` (using
@@ -117,13 +161,15 @@ use Chrome or Firefox if the view stays blank.
 ## Limitations
 
 - Point sampling, not continuous collision detection (thin obstacles smaller
-  than the sampling step may be missed)
+than the sampling step may be missed)
 - 3-axis only (no A/B/C rotary axes yet)
 - Fanuc-style G-code only (no Siemens/Heidenhain conversational)
 - Tool is modeled as cylinders (+ hemisphere/torus for ball/bull), not
-  actual flute geometry
+actual flute geometry
 - No material removal — checks against the static stock shape, not what's
-  actually left after each pass
+actually left after each pass
+
+
 
 ## How it works
 
@@ -135,6 +181,8 @@ G-code text
   → collision query (tool CollisionManager vs. obstacle CollisionManager)
   → VerifyResult (safe / CollisionEvent[] with line, position, depth)
 ```
+
+
 
 ## Background
 
