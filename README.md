@@ -17,7 +17,8 @@ gcode-collision-check verify program.nc --scene vise.stl
 ```
 
 See [examples/](examples/) for a runnable crash/safe pair and the actual
-CLI output.
+CLI output. To see the result in an interactive 3D view instead of text,
+use `gcode-collision-check visualize` (see below).
 
 ## What it checks
 
@@ -89,6 +90,29 @@ Available presets: `6mm_ball`, `10mm_flat`, `12mm_bull`.
 Other options: `--wcs-offset X,Y,Z` (G54 offset from machine home),
 `--output report.json` (write the full result as JSON), `--quiet`
 (suppress the stdout summary).
+
+## Visualizing a result
+
+```
+gcode-collision-check visualize program.nc --scene vise.stl
+```
+
+Runs the same check as `verify`, then opens an interactive 3D view in your
+browser: the scene, the tool assembly placed at the first collision (or at
+the end of the toolpath if it's safe), and the full toolpath traced in
+yellow. The tool is colored red on collision, green when safe.
+
+It takes the same `--tool-*`/`--tool-preset`/`--wcs-offset` options as
+`verify`, plus:
+
+- `--output-dir PATH` — save the GLB/HTML into `PATH` instead of a temp
+  directory (useful if you want to keep or share the files)
+- `--no-open` — generate the files without launching a browser
+
+The view is a self-contained `scene.glb` + `scene.html` (using
+`<model-viewer>` from a CDN) — open `scene.html` directly if the browser
+didn't launch automatically. Safari blocks `file://` GLB loading via CORS;
+use Chrome or Firefox if the view stays blank.
 
 ## Limitations
 
