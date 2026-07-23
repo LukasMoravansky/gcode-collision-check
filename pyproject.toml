@@ -9,6 +9,27 @@ description = "Offline collision detection for CNC tool assemblies against a sta
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
+authors = [
+    { name = "Lukáš Moravanský", email = "TBD@example.com" },
+]
+keywords = [
+    "cnc", "gcode", "collision-detection", "milling",
+    "cam", "manufacturing", "fcl", "trimesh",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+]
 dependencies = [
     "trimesh[easy]",
     "python-fcl",
@@ -21,6 +42,11 @@ dev = [
     "pytest",
     "ruff",
 ]
+
+[project.urls]
+Homepage = "https://github.com/LukasMoravansky/gcode-collision-check"
+Repository = "https://github.com/LukasMoravansky/gcode-collision-check"
+Issues = "https://github.com/LukasMoravansky/gcode-collision-check/issues"
 
 [project.scripts]
 gcode-collision-check = "gcode_collision_check.cli:main"
