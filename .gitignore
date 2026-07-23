@@ -184,3 +184,8 @@ cython_debug/
 out/
 /*.stl
 .claude/
+
+# Local scratch models and visualization output (not published)
+result/
+examples/1001.mpf
+examples/sverak_standalone.stl

@@ -1,0 +1,25 @@
+# Conda-based development environment.
+#
+# This is an optional convenience for developers who prefer conda over a
+# plain `pip install -e .[dev]`. It is NOT the source of truth for the
+# package's runtime dependencies — that is [project.dependencies] in
+# pyproject.toml. Use this only to spin up a local dev/test environment via
+# conda-forge; it additionally pins Python 3.10, pulls scipy from conda-forge,
+# and includes pytest for running the test suite.
+#
+#   conda env create -f environment-dev.yml
+#   conda activate gcode-collision-check
+#   pip install -e .
+name: gcode-collision-check
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - scipy
+  - click
+  - pytest
+  - trimesh
+  - pip
+  - pip:
+      - python-fcl
